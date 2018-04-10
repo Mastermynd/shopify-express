@@ -41,7 +41,7 @@ module.exports = function createShopifyAuthRoutes({ host, apiKey, secret, scope,
 		// Users are redirected here after clicking `Install`.
 		// The redirect from Shopify contains the authorization_code query parameter,
 		// which the app exchanges for an access token
-		async callback(request, response, next) {
+		callback(request, response, next) {
 			const { query } = request;
 			const { code, hmac, shop } = query;
 
@@ -66,20 +66,22 @@ module.exports = function createShopifyAuthRoutes({ host, apiKey, secret, scope,
 				client_secret: secret
 			});
 
-			const remoteResponse = await fetch(`https://${shop}/admin/oauth/access_token`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded',
-					'Content-Length': Buffer.byteLength(requestBody)
-				},
-				body: requestBody
-			});
+			const remoteResponse = Promise.resolve(
+				fetch(`https://${shop}/admin/oauth/access_token`, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/x-www-form-urlencoded',
+						'Content-Length': Buffer.byteLength(requestBody)
+					},
+					body: requestBody
+				})
+			);
 
-			const responseBody = await remoteResponse.json();
+			const responseBody = Promise.resolve(remoteResponse.json());
 			const accessToken = responseBody.access_token;
 
 			try {
-				const { token } = await shopStore.storeShop({ accessToken, shop });
+				const { token } = Promise.resolve(shopStore.storeShop({ accessToken, shop }));
 
 				if (request.session) {
 					request.session.accessToken = accessToken;

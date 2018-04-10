@@ -1,15 +1,15 @@
 module.exports = class MemoryStrategy {
-  constructor() {
-    this.store = {};
-  }
+	constructor() {
+		this.store = {};
+	}
 
-  async storeShop({ shop, accessToken }) {
-    this.store[shop] = {accessToken};
+	storeShop({ shop, accessToken }) {
+		this.store[shop] = { accessToken };
 
-    return {accessToken};
-  }
+		return Promise.resolve({ accessToken });
+	}
 
-  async getShop({ shop }) {
-    return this.store[shop];
-  }
+	getShop({ shop }) {
+		return Promise.resolve(this.store[shop]);
+	}
 };
